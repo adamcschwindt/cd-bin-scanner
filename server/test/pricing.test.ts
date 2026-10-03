@@ -139,3 +139,14 @@ test("transient error on both providers returns manual-only result", async () =>
   assert.ok(r.soldSearchUrl);
   assert.equal(r.soldDataAvailable, true, "a 500 is not a 'not approved' verdict");
 });
+
+test("soldStatus probes once: false when not approved, without a lookup first", async () => {
+  const { svc, calls } = service((url, init) => {
+    if (url.includes("/oauth2/token")) return tokenOk(init);
+    if (url.includes("marketplace_insights")) return { status: 403, body: {} };
+    return { status: 200, body: browseBody };
+  });
+  assert.equal(await svc.soldStatus(), false);
+  assert.equal(await svc.soldStatus(), false);
+  assert.equal(calls.filter((u) => u.includes("marketplace_insights")).length, 1);
+});

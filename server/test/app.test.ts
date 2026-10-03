@@ -19,6 +19,7 @@ async function start(overrides: any = {}) {
     },
     prices: {
       isAvailable: () => false,
+      soldStatus: async () => false,
       lookup: async (req: any) => { lookups++; return { query: req.q, gtin: req.gtin, source: "active", notes: [], comps: [] }; },
     } as any,
     identify: async () => ({ cds: [{ artist: "A", title: "B", year: null, confidence: 1, collectible: false, why: null }], unreadable: 0 }),

@@ -80,7 +80,7 @@ export function createApp(deps: Deps) {
       if (!DEVICE_ID.test(deviceId)) return send(res, 400, { error: "bad_device", message: "Missing device id." }, cors);
 
       if (req.method === "GET" && url.pathname === "/v1/ping") {
-        return send(res, 200, { ok: true, soldDataAvailable: deps.prices.isAvailable("marketplace_insights") }, cors);
+        return send(res, 200, { ok: true, soldDataAvailable: await deps.prices.soldStatus() }, cors);
       }
 
       if (req.method === "POST" && url.pathname === "/v1/identify") {

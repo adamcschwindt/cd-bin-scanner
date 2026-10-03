@@ -22,6 +22,7 @@ export interface PriceResult {
 export class PriceService {
   private providers: PriceProvider[];
   private unavailableUntil = new Map<string, number>();
+  private verified = new Set<string>();
   private log: (msg: string) => void;
 
   constructor(providers: PriceProvider[], log: (msg: string) => void = () => {}) {
@@ -31,6 +32,27 @@ export class PriceService {
 
   isAvailable(id: string): boolean {
     return (this.unavailableUntil.get(id) ?? 0) <= Date.now();
+  }
+
+  /**
+   * Whether sold data works for this credential set. Probes the sold
+   * provider once if it has never been tried, so a fresh process doesn't
+   * report "available" before eBay has been asked.
+   */
+  async soldStatus(): Promise<boolean> {
+    const sold = this.providers.filter((p) => p.kind === "sold");
+    for (const p of sold) {
+      if (!this.isAvailable(p.id)) continue;
+      if (this.verified.has(p.id)) return true;
+      try {
+        await p.search({ q: "nirvana nevermind CD", gtin: null });
+        this.verified.add(p.id);
+        return true;
+      } catch (e) {
+        if (e instanceof ProviderUnavailableError) this.unavailableUntil.set(p.id, Date.now() + UNAVAILABLE_RECHECK_MS);
+      }
+    }
+    return false;
   }
 
   /**
@@ -49,6 +71,7 @@ export class PriceService {
       try {
         for (const a of attempts) {
           const comps = await p.search(a);
+          this.verified.add(p.id);
           if (comps.length > 0) {
             if (a.gtin === null && req.gtin) notes.push("No match for the barcode; showing keyword results.");
             return this.result(req, p, comps, notes);
@@ -58,6 +81,7 @@ export class PriceService {
       } catch (e) {
         if (e instanceof ProviderUnavailableError) {
           this.unavailableUntil.set(p.id, Date.now() + UNAVAILABLE_RECHECK_MS);
+          this.verified.delete(p.id);
           this.log(`provider ${p.id} unavailable: ${e.message}`);
           continue;
         }

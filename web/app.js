@@ -379,8 +379,9 @@ async function runPrice({ item, req }) {
     const data = await api.prices({ artist: item.artist, title: item.title, gtin: item.upc });
     if (item._req !== req) return; // edited since; a newer request is in flight
     item.price = { status: "ok", data };
-    if (item.origin === "barcode" && !item.title && data.comps.length) {
-      item.title = cleanListingTitle(data.comps[0].title);
+    const named = data.comps.find((c) => !c.isLot) || null;
+    if (item.origin === "barcode" && !item.title && named) {
+      item.title = cleanListingTitle(named.title);
       item.titleFromListing = true;
     }
     state.soldAvailable = data.soldDataAvailable;
