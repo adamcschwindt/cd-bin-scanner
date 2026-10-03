@@ -1,6 +1,6 @@
 // App-shell cache so the page opens with no signal. API calls are never
 // cached here (they go to a different origin and are left alone).
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = [
   "./", "index.html", "styles.css", "app.js", "config.js", "manifest.webmanifest",
   "lib/api.js", "lib/image.js", "lib/db.js", "lib/dedupe.js", "lib/csv.js", "lib/barcode.js", "lib/ui.js",

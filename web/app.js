@@ -150,7 +150,7 @@ function updateRow(item) {
   meta.replaceChildren(
     ...(item.year ? [el("span", {}, String(item.year))] : []),
     ...(item.upc ? [el("span", {}, `UPC ${item.upc}`)] : []),
-    ...(item.origin === "photo" ? [confidenceBadge(item.confidence)] : [el("span", { class: "badge conf-high" }, "Barcode match")]),
+    ...(item.edited ? [el("span", { class: "badge conf-high" }, "Edited")] : item.origin === "photo" ? [confidenceBadge(item.confidence)] : [el("span", { class: "badge conf-high" }, "Barcode match")]),
     ...(item.titleFromListing ? [el("span", { class: "muted" }, "name from eBay listing")] : []),
     ...(item.collectible ? [el("span", { class: "badge flag" }, `★ Worth checking${item.why ? `: ${item.why}` : ""}`)] : []),
   );
@@ -246,6 +246,8 @@ function onEdit(id, artist, title) {
   item.artist = artist;
   item.title = title;
   item.titleFromListing = false;
+  item.confidence = 1; // the user checked the name
+  item.edited = true;
   persist();
   queuePrice(item);
 }
