@@ -55,7 +55,7 @@ gcloud auth login
 ### 1. Check the eBay keys and category
 
 ```bash
-cd server && npm ci && EBAY_CLIENT_ID=... EBAY_CLIENT_SECRET=... npm run verify-ebay
+./deploy/verify-ebay.sh
 ```
 
 This prints the CDs category from eBay's Taxonomy API, one sample Browse search, and whether sold prices are approved. If the category ID isn't `176984`, set `EBAY_CD_CATEGORY_ID` when you deploy.
