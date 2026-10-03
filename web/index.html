@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CD Bin Scanner</title>
+  <meta name="description" content="Photograph or scan CDs and see what they sell for on eBay.">
+  <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CD Scanner">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>CD Bin Scanner</h1>
+    <nav aria-label="Main">
+      <button type="button" class="link" id="nav-scan" hidden>Scan</button>
+      <button type="button" class="link" id="nav-history">History</button>
+      <button type="button" class="link" id="nav-settings" aria-label="Settings">Settings</button>
+    </nav>
+  </header>
+
+  <div id="net-banner" class="banner" role="status" hidden></div>
+
+  <main>
+    <!-- First run: passcode -->
+    <section id="view-setup" hidden aria-labelledby="setup-h">
+      <h2 id="setup-h">Enter the passcode</h2>
+      <p class="muted">Ask Adam for the app passcode. You only do this once on this phone.</p>
+      <form id="setup-form" class="stack">
+        <label for="setup-pass">Passcode</label>
+        <input id="setup-pass" type="password" autocomplete="current-password" required>
+        <button type="submit" class="primary">Continue</button>
+        <p id="setup-error" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <!-- Scan -->
+    <section id="view-scan" hidden aria-label="Scan">
+      <div class="capture">
+        <label class="big-btn primary" for="input-camera">
+          <span aria-hidden="true">📷</span> Take photo
+        </label>
+        <input id="input-camera" type="file" accept="image/*" capture="environment" class="visually-hidden">
+        <div class="row">
+          <label class="btn" for="input-library">Choose photos (up to 5)</label>
+          <input id="input-library" type="file" accept="image/*" multiple class="visually-hidden">
+          <button type="button" class="btn" id="btn-barcode">Scan barcodes</button>
+        </div>
+      </div>
+
+      <div id="scan-status" class="status" role="status" aria-live="polite"></div>
+
+      <div class="list-head">
+        <h2 id="results-h">This scan <span id="results-count" class="muted"></span></h2>
+        <div class="row">
+          <button type="button" class="btn small" id="btn-export">Export CSV</button>
+          <button type="button" class="btn small" id="btn-new">New scan</button>
+        </div>
+      </div>
+
+      <p id="empty-state" class="empty">Take a photo of CD spines or covers, or scan barcodes. Results appear here.</p>
+      <ul id="results" class="results" aria-labelledby="results-h"></ul>
+      <p class="hint muted">Swipe a row left to delete it.</p>
+    </section>
+
+    <!-- History -->
+    <section id="view-history" hidden aria-labelledby="history-h">
+      <h2 id="history-h">Saved scans</h2>
+      <p id="history-empty" class="empty" hidden>No saved scans yet.</p>
+      <ul id="history" class="history"></ul>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" hidden aria-labelledby="settings-h">
+      <h2 id="settings-h">Settings</h2>
+      <div class="card stack">
+        <h3>Price data</h3>
+        <p id="settings-sold" class="muted">Checking…</p>
+        <p class="muted small">Sold prices need eBay approval. Until then, the app shows asking prices from active listings (marked in amber). Use “Open eBay sold listings” on any CD to see real sold prices.</p>
+      </div>
+      <div class="card stack">
+        <h3>Passcode</h3>
+        <button type="button" class="btn" id="btn-reset-pass">Change passcode</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Price detail -->
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 id="detail-title"></h2>
+          <p id="detail-sub" class="muted"></p>
+        </div>
+        <button type="button" class="link" id="detail-close">Close</button>
+      </div>
+      <div id="detail-body"></div>
+    </div>
+  </dialog>
+
+  <!-- Barcode scanner -->
+  <div id="scanner" class="scanner" hidden role="dialog" aria-modal="true" aria-label="Barcode scanner">
+    <video id="scanner-video" playsinline muted></video>
+    <div class="scanner-frame" aria-hidden="true"></div>
+    <div class="scanner-bar">
+      <p id="scanner-msg" role="status" aria-live="polite">Point at the barcode on the back of the case.</p>
+      <button type="button" class="primary" id="scanner-done">Done</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
