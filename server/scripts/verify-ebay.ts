@@ -15,7 +15,16 @@ const tokens = new EbayTokenManager({ clientId: id, clientSecret: secret, env })
 const base = apiBase(env);
 const hdr = (t: string) => ({ Authorization: `Bearer ${t}`, "X-EBAY-C-MARKETPLACE-ID": "EBAY_US" });
 
-const token = await tokens.getToken([BASE_SCOPE]);
+let token: string;
+try {
+  token = await tokens.getToken([BASE_SCOPE]);
+} catch (e) {
+  console.error(`❌ ${(e as Error).message}`);
+  if (String(e).includes("invalid_client")) {
+    console.error("eBay rejected the App ID / Cert ID pair. Check: Production keys (not Sandbox), App ID and Cert ID from the SAME keyset, both copied in full.");
+  }
+  process.exit(1);
+}
 console.log(`✅ base token minted (${env})`);
 
 // Taxonomy: find the CDs category under Music.
